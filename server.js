@@ -15,15 +15,17 @@ const app = express();
 //giving permission to connect with the server
 app.use(cors());
 
-// Server Routes
+//////////////////////////////////// Server Routes\\\\\\\\\\\\\\\\\\\\\\\\\\\
 app.get('/', (req, res) => {
     res.status(200).json('Home Page');
 })
-// Route  Definition
+
+/////////////////////// Route  Definition\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 app.get('/location', locationHandler);
 app.get('/weather', weatherHandler);
+app.get('/trails', trailsHandler);
 
-// Route Handlers
+/////////////////////// Route Handlers\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
 function locationHandler(req, res) {
     const city = req.query.city;
     // Request data (server is acting as client)
@@ -44,14 +46,26 @@ const city = req.query.city;
     .then((apiResponse)=>{
         // console.log(apiResponse);
        
-      let weatherData=  apiResponse.body.data.map((value)=>{
+      let weatherData = apiResponse.body.data.map((value)=>{
         //   console.log(value);
-          
        return new Weather(value);
       })
-       
         res.status(200).json(weatherData);
     })
+    .catch(error =>{ errorHandler(error, req, res)})
+}
+
+function trailsHandler(req, res){
+    superagent(`https://www.hikingproject.com/data/get-trails?lat=40.0274&lon=-105.2519&maxDistance=10&key=${process.env.TRAIL_API_KEY}`)
+    .then((trailsApiResponse)=>{
+        console.log(trailsApiResponse);
+        //get the data from the api
+        const trailsData = trailsApiResponse.body.trails.map((data) =>{
+             return new Trails (data);
+        })
+        res.status(200).json(trailsData);
+    })
+    .catch(error =>{errorHandler(error, req, res)})
 }
 
 
@@ -67,7 +81,21 @@ function Weather (value){
     this.time = new Date(value.datetime).toDateString();
 }
 
+function Trails(data){
+    this.name = data.name;
+    this.location = data.location;
+    this.length = data.length;
+    this.stars = data.stars;
+    this.star_votes = data.starVotes;
+    this.summary = data.summary;
+    this.trail_url = data.url;
+    this.conditions = data.conditionDetails;
+    this.condition_date = new Date(data.conditionDate).toDateString();
+    this.condition_time = new Date(data.conditionDate);
+}
 
+
+//////////////////Error Handlers\\\\\\\\\\\\\\\\\\\\\\\\\\\
 function errorHandler(error, req, res){
     res.status(500).send(error);
 }
