@@ -43,7 +43,7 @@ function locationHandler(req, res) {
 function weatherHandler(req, res) {
     const city = req.query.city;
     
-superagent(`https://api.weatherbit.io/v2.0/forecast/daily?city=${city/*or we can use but it's not working req.query.search_query*/}&key=${process.env.WEATHER_API_KEY}`)
+superagent(`https://api.weatherbit.io/v2.0/forecast/daily?city=${city/*or we can use but it's not working req.query.search_query*/}&maxDistance=500&key=${process.env.WEATHER_API_KEY}`)
         .then((apiResponse) => {
             // console.log(apiResponse);
 
@@ -61,7 +61,7 @@ function trailsHandler(req, res) {
     // var fullUrl = req.protocol + '://' + req.get('host') + req.originalUrl;
     // console.log(req.query);
 
-    superagent(`https://www.hikingproject.com/data/get-trails?lat=${req.query.latitude}&lon=${req.query.longitude}&key=${process.env.TRAIL_API_KEY}`)
+    superagent(`https://www.hikingproject.com/data/get-trails?lat=${req.query.latitude}&lon=${req.query.longitude}&maxDistance=500&key=${process.env.TRAIL_API_KEY}`)
         .then((trailsApiResponse) => {
             // console.log(trailsApiResponse);
             //get the data from the api
